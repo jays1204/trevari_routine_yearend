@@ -7,8 +7,32 @@
   <title>12월 번개 D-Day 카운터 — 12월 20일 18:00</title>
   <style>
     :root{--bg:#0b0f14;--card:#0f1720;--accent:#ffd166;--muted:#9aa5b1}
-    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#e6eef6;background:linear-gradient(180deg,#071021 0%, #071821 60%);display:flex;align-items:center;justify-content:center}
-    .wrap{width:100%;max-width:720px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.6);text-align:center}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#e6eef6;background:radial-gradient(circle at top,#0e1d38 0%,#071021 48%,#05070d 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .scene{display:flex;flex-direction:column;align-items:center;gap:24px;position:relative;padding:20px}
+    .scene::before{content:"";position:absolute;inset:auto -160px -260px -160px;height:420px;background:radial-gradient(circle,#1d4a7c 0%,rgba(29,74,124,0) 68%);opacity:0.3;pointer-events:none;filter:blur(36px)}
+
+    /* 편지 봉투 */
+    .envelope-button{position:relative;width:240px;height:160px;background:linear-gradient(160deg,#fef4d8,#f8d8a9);border:0;border-radius:18px;box-shadow:0 18px 38px rgba(0,0,0,0.38),inset 0 0 0 1px rgba(101,65,32,0.32);cursor:pointer;transition:transform 0.9s cubic-bezier(0.19,1,0.22,1),box-shadow 0.6s ease;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .envelope-button::before{content:"";position:absolute;top:0;left:0;right:0;height:86px;background:linear-gradient(175deg,#f8ddaf,#f2c789);clip-path:polygon(0 0,50% 64%,100% 0);transition:transform 0.9s cubic-bezier(0.19,1,0.22,1);transform-origin:center top}
+    .envelope-button::after{content:"";position:absolute;bottom:0;left:0;right:0;height:96px;background:linear-gradient(185deg,#f5d4a1,#f2bf7c);clip-path:polygon(0 100%,0 12%,50% 64%,100% 12%,100% 100%);box-shadow:inset 0 0 0 1px rgba(101,65,32,0.25)}
+    .envelope-button:focus-visible{outline:3px solid rgba(255,209,102,0.7);outline-offset:6px}
+    .envelope-label{position:relative;z-index:2;font-size:16px;font-weight:600;color:#8b541d;text-shadow:0 1px 0 rgba(255,255,255,0.45);display:flex;align-items:center;gap:8px}
+    .envelope-label::before{content:"✉️";font-size:20px}
+    .scene.open .envelope-button{transform:translateY(-36px) scale(0.9);box-shadow:0 32px 64px rgba(0,0,0,0.62)}
+    .scene.open .envelope-button::before{transform:rotateX(180deg);background:linear-gradient(175deg,#f8d199,#fbdcb4)}
+
+    /* 편지 본문 */
+    .letter{position:relative;width:min(720px,calc(100vw - 48px));max-height:calc(100vh - 140px);overflow:auto;padding:24px 24px 20px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.08),rgba(10,16,30,0.68));box-shadow:0 26px 55px rgba(0,0,0,0.6),inset 0 0 0 1px rgba(255,255,255,0.06);transform-origin:top center;transition:opacity 0.7s ease,transform 0.85s cubic-bezier(0.19,1,0.22,1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+    .letter::-webkit-scrollbar{width:6px}
+    .letter::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);border-radius:10px}
+    .scene:not(.open) .letter{opacity:0;pointer-events:none;transform:translateY(44px) scale(0.9)}
+    .scene.open .letter{opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
+
+    .wrap{width:100%;max-width:720px;margin:0 auto;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.04));border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.55);text-align:center}
+    .letter-close{position:absolute;top:14px;right:18px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.2);background:rgba(11,17,28,0.65);color:#f6f7ff;font-size:12px;font-weight:600;letter-spacing:0.4px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,0.35);transition:background 0.2s ease,transform 0.2s ease,opacity 0.3s ease}
+    .letter-close:hover{background:rgba(20,32,54,0.8);transform:translateY(-1px)}
+    .letter-close:focus-visible{outline:2px solid rgba(255,209,102,0.7)}
+    .scene:not(.open) .letter-close{opacity:0;pointer-events:none;transform:translateY(-4px)}
     h1{margin:0 0 6px;font-size:18px;color:var(--accent)}
     p.sub{margin:0 0 18px;color:var(--muted)}
 
@@ -66,73 +90,93 @@
     .schedule-slot{font-weight:600;color:#ffd166}
     .schedule-desc{margin:0}
     .copyright-note{margin-top:24px;font-size:12px;color:#9aa5b1}
-    .inquiry-note{margin-top:6px;font-size:12px;color:#9aa5b1}
 
     footer.note{margin-top:18px;color:#9aa5b1;font-size:12px}
 
     /* 반응형 */
-    @media (max-width:420px){.logs{width:300px}.log{width:120px;height:30px}.flame-layer{bottom:56px}.count-badge{font-size:36px}.info-block{padding:18px}.info-card{padding:16px}.schedule-details summary{padding:14px 16px}}
+    @media (max-width:420px){
+      .envelope-button{width:200px;height:140px}
+      .envelope-label{font-size:14px}
+      .letter{padding:18px;max-height:calc(100vh - 120px)}
+      .letter-close{top:10px;right:12px;padding:6px 10px;font-size:11px}
+      .wrap{padding:22px}
+      .logs{width:300px}
+      .log{width:120px;height:30px}
+      .flame-layer{bottom:56px}
+      .count-badge{font-size:36px}
+      .info-block{padding:18px}
+      .info-card{padding:16px}
+      .schedule-details summary{padding:14px 16px}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap" role="application" aria-label="D-Day 카운터">
-    <h1>📅 12월 번개 D-Day 안내 — 12월 20일 오후 6시</h1>
-    <p class="sub">시간은 금 💰</p>
+  <div class="scene" id="scene">
+    <button class="envelope-button" id="openEnvelope" type="button" aria-expanded="false" aria-controls="letter-panel">
+      <span class="envelope-label">초대장 열어보기</span>
+    </button>
 
-    <div class="counter">
-      <div class="count-badge" id="count">--</div>
-      <div class="time-detail" id="detail">로딩 중…</div>
-      <div class="status" id="status">처음에는 잔불로 시작합니다.</div>
+    <div class="letter" id="letter-panel" role="region" aria-label="12월 번개 안내" aria-live="polite">
+      <button class="letter-close" id="closeEnvelope" type="button">초대장 닫기</button>
+      <div class="wrap" role="application" aria-label="D-Day 카운터">
+        <h1>📅 12월 번개 D-Day 안내 — 12월 20일 오후 6시</h1>
+        <p class="sub">시간은 금 💰</p>
 
-      <div class="fire-wrap" aria-hidden="true">
-        <div class="flame-layer" id="flameLayer">
-          <div class="flame yellow" id="flameY"></div>
-          <div class="flame orange" id="flameO" style="margin-left:-10px;margin-right:-10px"></div>
-          <div class="flame red" id="flameR"></div>
+        <div class="counter">
+          <div class="count-badge" id="count">--</div>
+          <div class="time-detail" id="detail">로딩 중…</div>
+          <div class="status" id="status">처음에는 잔불로 시작합니다.</div>
+
+          <div class="fire-wrap" aria-hidden="true">
+            <div class="flame-layer" id="flameLayer">
+              <div class="flame yellow" id="flameY"></div>
+              <div class="flame orange" id="flameO" style="margin-left:-10px;margin-right:-10px"></div>
+              <div class="flame red" id="flameR"></div>
+            </div>
+            <div class="logs" aria-hidden="true">
+              <div class="log second"><div class="bark"></div></div>
+              <div class="log"><div class="bark"></div></div>
+            </div>
+          </div>
         </div>
-        <div class="logs" aria-hidden="true">
-          <div class="log second"><div class="bark"></div></div>
-          <div class="log"><div class="bark"></div></div>
-        </div>
+
+        <section class="info-block" aria-label="장소와 준비물, 드레스코드 안내">
+          <article class="info-card">
+            <h2>📍 장소</h2>
+            <p><a href="https://naver.me/FfeYqfqg" target="_blank" rel="noopener noreferrer">홍대 루프탑 파티룸 무드</a>에서 만나요.</p>
+            <p>📫 서울 마포구 독막로9길 8 5층</p>
+          </article>
+          <article class="info-card">
+            <h2>🎁 준비물</h2>
+            <p><span class="sparkle">🍷</span> 같이 즐길 주류 또는 음료를 하나 이상 챙겨와 주세요.</p>
+          </article>
+          <article class="info-card">
+            <h2>🧣 드레스코드</h2>
+            <p><span class="dresscode-highlight red">빨강</span> 또는 <span class="dresscode-highlight green">초록색</span> 포인트를 꼭 더해 주세요! 🎄</p>
+            <p>드레스코드를 지키지 않은 분은 노래 불러주셔야해요.🎤🎵🎧💃🕺🎶</p>
+          </article>
+        </section>
+
+        <section class="schedule-block" aria-label="모임 일정 안내">
+          <details class="schedule-details">
+            <summary>🗓 일정 안내</summary>
+            <div class="schedule-content">
+              <div class="schedule-item">
+                <div class="schedule-slot">오후 6시 30분 ~ 오후 8시</div>
+                <p class="schedule-desc">저녁 식사 — 따끈한 돼지고기와 신선한 회를 함께 즐겨요.</p>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-slot">오후 8시 10분 ~ 오후 10시</div>
+                <p class="schedule-desc">간단한 게임 — 팀을 나눠 즐거운 시간 보내요.</p>
+              </div>
+            </div>
+          </details>
+        </section>
+
+        <footer class="note">기타 문의: jays(010-ABCD-EFGH)</footer>
+        <p class="copyright-note">© 2025 jays. All left reserved.</p>
       </div>
     </div>
-
-    <section class="info-block" aria-label="장소와 준비물, 드레스코드 안내">
-      <article class="info-card">
-        <h2>📍 장소</h2>
-        <p><a href="https://naver.me/FfeYqfqg" target="_blank" rel="noopener noreferrer">홍대 루프탑 파티룸 무드</a>에서 만나요.</p>
-        <p>📫 서울 마포구 독막로9길 8 5층</p>
-      </article>
-      <article class="info-card">
-        <h2>🎁 준비물</h2>
-        <p><span class="sparkle">🍷</span> 같이 즐길 주류 또는 음료를 하나 이상 챙겨와 주세요.</p>
-      </article>
-      <article class="info-card">
-        <h2>🧣 드레스코드</h2>
-        <p><span class="dresscode-highlight red">빨강</span> 또는 <span class="dresscode-highlight green">초록색</span> 포인트를 꼭 더해 주세요! 🎄</p>
-        <p>드레스코드를 지키지 않은 분은 노래 불러주셔야해요.🎤🎵🎧💃🕺🎶</p>
-      </article>
-    </section>
-
-    <section class="schedule-block" aria-label="모임 일정 안내">
-      <details class="schedule-details">
-        <summary>🗓 일정 안내</summary>
-        <div class="schedule-content">
-          <div class="schedule-item">
-            <div class="schedule-slot">오후 6시 30분 ~ 오후 8시</div>
-            <p class="schedule-desc">저녁 식사 — 따끈한 돼지고기와 신선한 회를 함께 즐겨요.</p>
-          </div>
-          <div class="schedule-item">
-            <div class="schedule-slot">오후 8시 10분 ~ 오후 10시</div>
-            <p class="schedule-desc">간단한 게임 — 팀을 나눠 즐거운 시간 보내요.</p>
-          </div>
-        </div>
-      </details>
-    </section>
-
-    <p class="copyright-note">© 2025 jays. All left reserved.</p>
-
-    <footer class="note">기타 문의: jays(010-ABCD-EFGH)</footer>
   </div>
 
   <script>
@@ -231,6 +275,56 @@
         if (!document.hidden){ update(); }
       });
 
+    })();
+  </script>
+  <script>
+    (function(){
+      const scene = document.getElementById('scene');
+      const btn = document.getElementById('openEnvelope');
+      const letter = document.getElementById('letter-panel');
+      const closeBtn = document.getElementById('closeEnvelope');
+      const label = btn ? btn.querySelector('.envelope-label') : null;
+
+      if (!scene || !btn || !letter) return;
+
+      const motionReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const openDelay = motionReduce ? 0 : 720;
+      const closeDelay = motionReduce ? 0 : 520;
+
+      letter.setAttribute('tabindex','-1');
+      letter.setAttribute('aria-hidden','true');
+      if (label){ label.textContent = '초대장이 도착했습니다.'; }
+
+      function setOpenState(open){
+        scene.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', String(open));
+        letter.setAttribute('aria-hidden', String(!open));
+        if (label){ label.textContent = open ? '초대장 접어두기' : '초대장 열어보기'; }
+
+        const focusTarget = open ? letter : btn;
+        const delay = open ? openDelay : closeDelay;
+        if (delay === 0){
+          focusTarget.focus({preventScroll:true});
+        } else {
+          setTimeout(()=>focusTarget.focus({preventScroll:true}), delay);
+        }
+      }
+
+      btn.addEventListener('click', ()=>{
+        const nextState = !scene.classList.contains('open');
+        setOpenState(nextState);
+      });
+
+      if (closeBtn){
+        closeBtn.addEventListener('click', ()=>setOpenState(false));
+      }
+
+      letter.addEventListener('keydown', (event)=>{
+        if (event.key === 'Escape'){
+          event.preventDefault();
+          setOpenState(false);
+        }
+      });
     })();
   </script>
 </body>
