@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <!-- github으로 호스팅하자 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>12월 번개 D-Day 카운터 — 12월 20일 18:00</title>
+  <style>
+    :root{--bg:#0b0f14;--card:#0f1720;--accent:#ffd166;--muted:#9aa5b1}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#e6eef6;background:linear-gradient(180deg,#071021 0%, #071821 60%);display:flex;align-items:center;justify-content:center}
+    .wrap{width:100%;max-width:720px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.02));border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,0.6);text-align:center}
+    h1{margin:0 0 6px;font-size:18px;color:var(--accent)}
+    p.sub{margin:0 0 18px;color:var(--muted)}
+
+    /* 카운터 */
+    .counter{display:flex;flex-direction:column;gap:12px;align-items:center}
+    .count-badge{font-weight:700;font-size:44px;letter-spacing:2px;background:linear-gradient(90deg,#fff,#ffd166);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .time-detail{font-size:14px;color:var(--muted)}
+
+    /* 장작 + 불 디자인 */
+    .fire-wrap{position:relative;height:180px;margin-top:18px;display:flex;align-items:flex-end;justify-content:center}
+    .logs{position:relative;height:70px;width:420px;display:flex;align-items:center;justify-content:center}
+    .log{width:160px;height:34px;border-radius:18px;background:#6b3f1d;box-shadow:inset -6px -6px 14px rgba(0,0,0,0.35), inset 6px 6px 12px rgba(255,255,255,0.02);transform:rotate(-12deg);margin:0 -12px}
+    .log.second{transform:rotate(12deg)}
+    .bark{position:absolute;inset:0;border-radius:18px;pointer-events:none;background-image:linear-gradient(120deg, rgba(0,0,0,0.08) 0 10%, transparent 10% 20%, rgba(0,0,0,0.06) 20% 30%)}
+
+    /* 불꽃 - 여러 레이어로 강도/움직임 조절 */
+    .flame-layer{position:absolute;bottom:62px;width:160px;height:160px;left:50%;transform:translateX(-50%);pointer-events:none;display:flex;align-items:end;justify-content:center}
+    .flame{width:44px;height:80px;border-radius:50% 50% 40% 40%/60% 60% 40% 40%;position:relative;filter:blur(0.6px);opacity:0.85}
+    .flame::before{content:"";position:absolute;inset:12% 12% 12% 12%;border-radius:inherit}
+
+    /* 색상 레이어 */
+    .flame.red{background:radial-gradient(circle at 30% 30%, rgba(255,120,60,1) 0 28%, rgba(255,90,40,0.9) 35% 60%, rgba(255,40,0,0.6) 70%)}
+    .flame.orange{background:radial-gradient(circle at 40% 30%, rgba(255,185,80,1) 0 25%, rgba(255,140,30,0.9) 35% 60%, rgba(255,80,0,0.5) 70%)}
+    .flame.yellow{background:radial-gradient(circle at 50% 30%, rgba(255,245,140,1) 0 20%, rgba(255,220,80,0.9) 30% 55%, rgba(255,180,60,0.4) 65%)}
+
+    /* 기본 애니메이션 (속도와 크기는 JS에서 제어) */
+    @keyframes flicker {0%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-6%) scaleY(1.06)}100%{transform:translateY(0) scaleY(1)}}
+
+    /* 상태 텍스트 */
+    .status{margin-top:12px;color:var(--muted);font-size:13px}
+
+    /* 준비물 & 드레스코드 안내 */
+    .info-block{margin-top:28px;padding:22px;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 28px rgba(4,10,25,0.4);display:flex;flex-direction:column;gap:18px}
+    .info-card{text-align:left;background:rgba(7,16,33,0.6);border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.06);box-shadow:inset 0 0 18px rgba(255,255,255,0.04)}
+    .info-card h2{margin:0 0 10px;font-size:16px;letter-spacing:0.4px;color:#f8f7ff;display:flex;align-items:center;gap:8px}
+    .info-card p{margin:0;color:#cfd8e3;font-size:14px;line-height:1.6}
+    .info-card a{color:#ffd166;text-decoration:none;border-bottom:1px solid rgba(255,209,102,0.4);padding-bottom:2px;transition:color 0.2s ease,border-color 0.2s ease}
+    .info-card a:hover{color:#ffe9a6;border-bottom-color:#ffe9a6}
+    .info-card a:focus-visible{outline:2px solid rgba(255,209,102,0.6);border-radius:4px}
+    .dresscode-highlight{font-weight:700}
+    .dresscode-highlight.red{color:#ff5c6c;text-shadow:0 0 12px rgba(255,92,108,0.4)}
+    .dresscode-highlight.green{color:#4dd17a;text-shadow:0 0 12px rgba(77,209,122,0.4)}
+    .info-card .sparkle{font-size:18px}
+
+    /* 일정 안내 */
+    .schedule-block{margin-top:24px;text-align:left}
+    .schedule-details{background:rgba(7,16,33,0.6);border-radius:12px;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 0 18px rgba(255,255,255,0.03)}
+    .schedule-details summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:16px 18px;font-weight:600;color:#f6f7ff;font-size:15px;position:relative}
+    .schedule-details summary::-webkit-details-marker{display:none}
+    .schedule-details summary::after{content:"+";margin-left:auto;font-size:18px;color:#ffd166;transition:transform 0.2s ease}
+    .schedule-details[open] summary::after{transform:rotate(45deg)}
+    .schedule-details summary:focus-visible{outline:2px solid rgba(255,209,102,0.6);border-radius:10px}
+    .schedule-content{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px;font-size:14px;color:#cfd8e3}
+    .schedule-item{background:rgba(11,17,28,0.7);border-radius:10px;padding:12px 14px;border:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;gap:6px}
+    .schedule-slot{font-weight:600;color:#ffd166}
+    .schedule-desc{margin:0}
+    .copyright-note{margin-top:24px;font-size:12px;color:#9aa5b1}
+    .inquiry-note{margin-top:6px;font-size:12px;color:#9aa5b1}
+
+    footer.note{margin-top:18px;color:#9aa5b1;font-size:12px}
+
+    /* 반응형 */
+    @media (max-width:420px){.logs{width:300px}.log{width:120px;height:30px}.flame-layer{bottom:56px}.count-badge{font-size:36px}.info-block{padding:18px}.info-card{padding:16px}.schedule-details summary{padding:14px 16px}}
+  </style>
+</head>
+<body>
+  <div class="wrap" role="application" aria-label="D-Day 카운터">
+    <h1>📅 12월 번개 D-Day 안내 — 12월 20일 오후 6시</h1>
+    <p class="sub">시간은 금 💰</p>
+
+    <div class="counter">
+      <div class="count-badge" id="count">--</div>
+      <div class="time-detail" id="detail">로딩 중…</div>
+      <div class="status" id="status">처음에는 잔불로 시작합니다.</div>
+
+      <div class="fire-wrap" aria-hidden="true">
+        <div class="flame-layer" id="flameLayer">
+          <div class="flame yellow" id="flameY"></div>
+          <div class="flame orange" id="flameO" style="margin-left:-10px;margin-right:-10px"></div>
+          <div class="flame red" id="flameR"></div>
+        </div>
+        <div class="logs" aria-hidden="true">
+          <div class="log second"><div class="bark"></div></div>
+          <div class="log"><div class="bark"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="info-block" aria-label="장소와 준비물, 드레스코드 안내">
+      <article class="info-card">
+        <h2>📍 장소</h2>
+        <p><a href="https://naver.me/FfeYqfqg" target="_blank" rel="noopener noreferrer">홍대 루프탑 파티룸 무드</a>에서 만나요.</p>
+        <p>📫 서울 마포구 독막로9길 8 5층</p>
+      </article>
+      <article class="info-card">
+        <h2>🎁 준비물</h2>
+        <p><span class="sparkle">🍷</span> 같이 즐길 주류 또는 음료를 하나 이상 챙겨와 주세요.</p>
+      </article>
+      <article class="info-card">
+        <h2>🧣 드레스코드</h2>
+        <p><span class="dresscode-highlight red">빨강</span> 또는 <span class="dresscode-highlight green">초록색</span> 포인트를 꼭 더해 주세요! 🎄</p>
+        <p>드레스코드를 지키지 않은 분은 노래 불러주셔야해요.🎤🎵🎧💃🕺🎶</p>
+      </article>
+    </section>
+
+    <section class="schedule-block" aria-label="모임 일정 안내">
+      <details class="schedule-details">
+        <summary>🗓 일정 안내</summary>
+        <div class="schedule-content">
+          <div class="schedule-item">
+            <div class="schedule-slot">오후 6시 30분 ~ 오후 8시</div>
+            <p class="schedule-desc">저녁 식사 — 따끈한 돼지고기와 신선한 회를 함께 즐겨요.</p>
+          </div>
+          <div class="schedule-item">
+            <div class="schedule-slot">오후 8시 10분 ~ 오후 10시</div>
+            <p class="schedule-desc">간단한 게임 — 팀을 나눠 즐거운 시간 보내요.</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <p class="copyright-note">© 2025 jays. All left reserved.</p>
+
+    <footer class="note">기타 문의: jays(010-ABCD-EFGH)</footer>
+  </div>
+
+  <script>
+    (function(){
+      // 목표일: 매년 12월 20일 오후 18:00 (브라우저 로컬 시간)
+      function getTargetDate(now){
+        const year = now.getFullYear();
+        let target = new Date(year, 11, 20, 18, 0, 0, 0); // 11 = December
+        if (target <= now) target = new Date(year + 1, 11, 20, 18, 0, 0, 0);
+        return target;
+      }
+
+      const elCount = document.getElementById('count');
+      const elDetail = document.getElementById('detail');
+      const elStatus = document.getElementById('status');
+      const flameY = document.getElementById('flameY');
+      const flameO = document.getElementById('flameO');
+      const flameR = document.getElementById('flameR');
+      const flameLayer = document.getElementById('flameLayer');
+
+      let startTime = new Date();
+      let target = getTargetDate(startTime);
+      const fullDuration = target - startTime; // ms
+
+      function formatTwo(n){return String(n).padStart(2,'0');}
+
+      function update(){
+        const now = new Date();
+        const remaining = target - now;
+
+        if (remaining <= 0){
+          elCount.textContent = 'D-DAY';
+          elDetail.textContent = '지금은 D-Day 입니다!';
+          elStatus.textContent = '🔥 도착했습니다. 불꽃이 최고조입니다!';
+          // 최대 불
+          setFlameIntensity(1);
+          return;
+        }
+
+        const days = Math.ceil(remaining / (24*3600*1000));
+        // 24시간 초과인 경우: D-<일수> 형식 (날짜만 바뀜)
+        if (remaining > 24*3600*1000){
+          elCount.textContent = `D-${days}`;
+          elDetail.textContent = `${target.getFullYear()}년 ${target.getMonth()+1}월 ${target.getDate()}일 ${formatTwo(target.getHours())}:${formatTwo(target.getMinutes())} 기준(KST)`;
+          elStatus.textContent = '';
+        } else {
+          // 24시간 이하: 시:분:초 실시간 카운트
+          const hrs = Math.floor(remaining / (3600*1000));
+          const mins = Math.floor((remaining % (3600*1000)) / (60*1000));
+          const secs = Math.floor((remaining % (60*1000)) / 1000);
+          elCount.textContent = `D-DAY ${formatTwo(hrs)}:${formatTwo(mins)}:${formatTwo(secs)}`;
+          elDetail.textContent = `남은 시간 — ${hrs}시간 ${mins}분 ${secs}초`;
+          elStatus.textContent = '24시간 이내입니다. 초 단위로 감소합니다.';
+        }
+
+        // 불꽃 강도 계산: 페이지 로드 시점(startTime)부터 목표까지의 상대적 진행도로 정의
+        const elapsed = now - startTime; // ms
+        let intensity = 0;
+        if (fullDuration > 0){
+          intensity = Math.min(Math.max(elapsed / fullDuration, 0), 1);
+        }
+        setFlameIntensity(intensity);
+      }
+
+      // 불꽃의 크기, 흔들림 속도 등을 조절
+      function setFlameIntensity(t){
+        // t: 0 ~ 1
+        // 크기: 0.45 ~ 1.25
+        const baseScale = 0.45 + 0.8 * t;
+        flameY.style.transform = `translateY(${ -8 * t }%) scale(${ baseScale * 0.9 })`;
+        flameO.style.transform = `translateY(${ -6 * t }%) scale(${ baseScale * 1.0 })`;
+        flameR.style.transform = `translateY(${ -4 * t }%) scale(${ baseScale * 1.15 })`;
+
+        // 애니메이션 속도 및 흔들림 세기: 시간 단축
+        const speed = 1.8 - 1.3 * t; // 1.8s ~ 0.5s
+        const grow = 0.8 + 0.6 * t; // 흔들림 폭
+
+        [flameY, flameO, flameR].forEach((el, i)=>{
+          el.style.animation = `flicker ${Math.max(0.45, speed - i*0.12)}s ease-in-out infinite`;
+          el.style.opacity = 0.45 + 0.55 * t; // 어두운 잔불 -> 밝은 불
+          el.style.filter = `blur(${0.6 - 0.45*t}px) saturate(${1 + 0.7*t})`;
+        });
+
+        // 불 레이어 전체 위치 약간 변동(시각적 강조)
+        flameLayer.style.bottom = `${62 + 18 * t}px`;
+      }
+
+      // 처음 상태: 잔불(약하게). 애니메이션을 조금 준다.
+      setFlameIntensity(0.04);
+      update();
+      // 업데이트 주기: 초단위로, 1초마다
+      const timer = setInterval(update, 1000);
+
+      // 사용자에게 친절한 포커스/탭 접근성
+      document.addEventListener('visibilitychange', function(){
+        if (!document.hidden){ update(); }
+      });
+
+    })();
+  </script>
+</body>
+</html>
