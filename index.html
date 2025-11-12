@@ -98,6 +98,7 @@
     .dresscode-highlight.red{color:#ff5c6c;text-shadow:0 0 12px rgba(255,92,108,0.4)}
     .dresscode-highlight.green{color:#4dd17a;text-shadow:0 0 12px rgba(77,209,122,0.4)}
     .info-card .sparkle{font-size:18px}
+    .invitee-title{color:var(--accent);font-weight:700;letter-spacing:0.5px;margin-right:6px;display:inline-block}
 
     /* 일정 안내 */
     .schedule-block{margin-top:24px;text-align:left}
@@ -145,7 +146,7 @@
     <form class="invite-form" id="inviteForm" novalidate>
       <label for="inviteName">이름을 입력해 초대장을 열어보세요</label>
       <div class="input-row">
-        <input class="invite-input" id="inviteName" name="inviteName" type="text" maxlength="3" placeholder="이름 (3글자)" autocomplete="off" required>
+        <input class="invite-input" id="inviteName" name="inviteName" type="text" maxlength="3" placeholder="이름" autocomplete="off" required>
         <button class="invite-submit" id="inviteSubmit" type="submit">열어보기</button>
       </div>
       <p class="invite-hint">초대받은 분만 초대장을 확인할 수 있어요.</p>
@@ -159,7 +160,8 @@
     <div class="letter" id="letter-panel" role="region" aria-label="12월 번개 안내" aria-live="polite">
       <button class="letter-close" id="closeEnvelope" type="button">초대장 닫기</button>
       <div class="wrap" role="application" aria-label="D-Day 카운터">
-        <h1>📅 12월 번개 D-Day 안내</h1>
+        <h1><span class="invitee-title" id="inviteeTitle"></span> 📅 12월 번개 D-Day 안내</h1>
+        <p class="invitee-greeting sub" id="inviteeGreeting" style="display:none;"></p>
         <p class="sub">12월 20일 오후 6시</p>
 
         <div class="counter">
@@ -213,7 +215,7 @@
           </details>
         </section>
 
-        <footer class="note">기타 문의: jays(010-ABCD-EFGH)</footer>
+        <footer class="note">기타 문의: jays, 코인 및 주식 받습니다.</footer>
         <p class="copyright-note">© 2025 jays. All left reserved.</p>
       </div>
     </div>
@@ -320,7 +322,7 @@
   </script>
   <script>
     (function(){
-      const allowedNames = new Set(['우정식']);
+      const allowedNames = new Set(['우정식',' 강수현', '서민경', '신지은', '한아름', '장성임', '정은희', '한지훈', '배재열'].map((name)=>name.trim()));
       const scene = document.getElementById('scene');
       const btn = document.getElementById('openEnvelope');
       const letter = document.getElementById('letter-panel');
@@ -331,6 +333,8 @@
       const inviteSubmit = document.getElementById('inviteSubmit');
       const toast = document.getElementById('inviteToast');
       const magic = document.getElementById('inviteMagic');
+      const inviteeTitle = document.getElementById('inviteeTitle');
+      const inviteeGreeting = document.getElementById('inviteeGreeting');
       let toastTimer = null;
       let processing = false;
       let inviteUnlocked = false;
@@ -426,10 +430,18 @@
         const completeCheck = ()=>{
           toggleMagic(false);
           finishProcessing();
+          const randMessage = ['기다렸어요!', '반갑습니다!', '즐거운 시간이 되시길 바랄게요!', '번개를 즐겨주세요!', '정식님은 진짜 멋져요!'];
 
           if (allowedNames.has(name)){
             inviteUnlocked = true;
             btn.removeAttribute('aria-disabled');
+            if (inviteeTitle){
+              inviteeTitle.textContent = `${name}님을 위한`;
+            }
+            if (inviteeGreeting){
+              inviteeGreeting.textContent = `${name}님, ${randMessage[Math.floor(Math.random() * randMessage.length)]}`;
+              inviteeGreeting.style.display = 'block';
+            }
             if (!scene.classList.contains('open')){
               setOpenState(true);
             }
