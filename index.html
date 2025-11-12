@@ -33,6 +33,28 @@
     .letter-close:hover{background:rgba(20,32,54,0.8);transform:translateY(-1px)}
     .letter-close:focus-visible{outline:2px solid rgba(255,209,102,0.7)}
     .scene:not(.open) .letter-close{opacity:0;pointer-events:none;transform:translateY(-4px)}
+    .envelope-button[aria-disabled="true"]{cursor:default;pointer-events:none;opacity:0.92}
+    .invite-form{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;color:#dae4f3;margin-top:4px}
+    .invite-form label{font-size:14px;color:#f1f2f8;font-weight:600;letter-spacing:0.4px}
+    .invite-form .input-row{display:flex;gap:8px;align-items:center}
+    .invite-input{width:140px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.28);background:rgba(11,17,28,0.55);color:#f6f7ff;font-size:14px;text-align:center;letter-spacing:0.3px;transition:border 0.2s ease,box-shadow 0.2s ease}
+    .invite-input::placeholder{color:rgba(255,255,255,0.45)}
+    .invite-input:focus-visible{outline:none;border-color:rgba(255,209,102,0.8);box-shadow:0 0 0 3px rgba(255,209,102,0.25)}
+    .invite-submit{padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.25);background:linear-gradient(120deg,#ffd166,#ffaf69);color:#241200;font-size:13px;font-weight:700;letter-spacing:0.5px;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,0.35);transition:transform 0.2s ease,box-shadow 0.2s ease,opacity 0.2s ease}
+    .invite-submit:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(0,0,0,0.4)}
+    .invite-submit:focus-visible{outline:2px solid rgba(255,209,102,0.8);outline-offset:3px}
+    .invite-hint{margin:0;font-size:12px;color:rgba(233,240,255,0.72)}
+    .invite-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,24,42,0.92);color:#fefefe;padding:12px 22px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.4px;box-shadow:0 16px 38px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.25s ease,transform 0.35s cubic-bezier(0.22,1,0.36,1)}
+    .invite-toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+    .invite-magic{position:absolute;top:112px;left:50%;display:flex;gap:10px;align-items:center;justify-content:center;padding:6px 16px;border-radius:999px;background:rgba(22,34,61,0.62);box-shadow:0 12px 24px rgba(0,0,0,0.4);opacity:0;transform:translate(-50%,-16px) scale(0.9);transition:opacity 0.3s ease,transform 0.45s cubic-bezier(0.22,1,0.36,1);pointer-events:none;color:#ffe9b0}
+    .invite-magic span{display:inline-block}
+    .invite-magic .hat{font-size:30px;animation:hatBounce 1.25s ease-in-out infinite}
+    .invite-magic .sparkles{font-size:22px;animation:sparkPulse 0.9s ease-in-out infinite}
+    .invite-magic .wand{font-size:26px;animation:wandTwirl 1.25s ease-in-out infinite alternate}
+    .invite-magic.active{opacity:1;transform:translate(-50%,0) scale(1)}
+    @keyframes hatBounce{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+    @keyframes sparkPulse{0%,100%{opacity:0.4;transform:scale(0.88)}50%{opacity:1;transform:scale(1.18)}}
+    @keyframes wandTwirl{0%{transform:rotate(-10deg)}100%{transform:rotate(10deg)}}
     h1{margin:0 0 6px;font-size:18px;color:var(--accent)}
     p.sub{margin:0 0 18px;color:var(--muted)}
 
@@ -107,20 +129,38 @@
       .info-block{padding:18px}
       .info-card{padding:16px}
       .schedule-details summary{padding:14px 16px}
+      .invite-form label{font-size:13px}
+      .invite-input{width:120px;padding:8px 12px}
+      .invite-submit{padding:8px 14px;font-size:12px}
+      .invite-toast{bottom:20px;padding:10px 18px;font-size:12px}
+      .invite-magic{top:96px;font-size:22px}
     }
   </style>
 </head>
 <body>
   <div class="scene" id="scene">
-    <button class="envelope-button" id="openEnvelope" type="button" aria-expanded="false" aria-controls="letter-panel">
+    <button class="envelope-button" id="openEnvelope" type="button" aria-expanded="false" aria-controls="letter-panel" aria-disabled="true">
       <span class="envelope-label">초대장 열어보기</span>
     </button>
+    <form class="invite-form" id="inviteForm" novalidate>
+      <label for="inviteName">이름을 입력해 초대장을 열어보세요</label>
+      <div class="input-row">
+        <input class="invite-input" id="inviteName" name="inviteName" type="text" maxlength="3" placeholder="이름 (3글자)" autocomplete="off" required>
+        <button class="invite-submit" id="inviteSubmit" type="submit">열어보기</button>
+      </div>
+      <p class="invite-hint">초대받은 분만 초대장을 확인할 수 있어요.</p>
+    </form>
+    <div class="invite-magic" id="inviteMagic" aria-hidden="true">
+      <span class="hat" aria-hidden="true">🧙‍♂️</span>
+      <span class="sparkles" aria-hidden="true">✨</span>
+      <span class="wand" aria-hidden="true">🪄</span>
+    </div>
 
     <div class="letter" id="letter-panel" role="region" aria-label="12월 번개 안내" aria-live="polite">
       <button class="letter-close" id="closeEnvelope" type="button">초대장 닫기</button>
       <div class="wrap" role="application" aria-label="D-Day 카운터">
-        <h1>📅 12월 번개 D-Day 안내 — 12월 20일 오후 6시</h1>
-        <p class="sub">시간은 금 💰</p>
+        <h1>📅 12월 번개 D-Day 안내</h1>
+        <p class="sub">12월 20일 오후 6시</p>
 
         <div class="counter">
           <div class="count-badge" id="count">--</div>
@@ -178,6 +218,7 @@
       </div>
     </div>
   </div>
+  <div class="invite-toast" id="inviteToast" role="alert" aria-live="assertive"></div>
 
   <script>
     (function(){
@@ -279,29 +320,75 @@
   </script>
   <script>
     (function(){
+      const allowedNames = new Set(['우정식']);
       const scene = document.getElementById('scene');
       const btn = document.getElementById('openEnvelope');
       const letter = document.getElementById('letter-panel');
       const closeBtn = document.getElementById('closeEnvelope');
       const label = btn ? btn.querySelector('.envelope-label') : null;
+      const inviteForm = document.getElementById('inviteForm');
+      const inviteInput = document.getElementById('inviteName');
+      const inviteSubmit = document.getElementById('inviteSubmit');
+      const toast = document.getElementById('inviteToast');
+      const magic = document.getElementById('inviteMagic');
+      let toastTimer = null;
+      let processing = false;
+      let inviteUnlocked = false;
 
-      if (!scene || !btn || !letter) return;
+      if (!scene || !btn || !letter || !inviteForm || !inviteInput || !inviteSubmit) return;
 
       const motionReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const openDelay = motionReduce ? 0 : 720;
+      const openDelay = motionReduce ? 0 : 820;
       const closeDelay = motionReduce ? 0 : 520;
+      const verdictDelay = motionReduce ? 0 : 1000;
 
       letter.setAttribute('tabindex','-1');
       letter.setAttribute('aria-hidden','true');
+      btn.setAttribute('aria-disabled','true');
       if (label){ label.textContent = '초대장이 도착했습니다.'; }
+      if (magic){ magic.setAttribute('aria-hidden','true'); }
+
+      function showToast(message){
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add('visible');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(()=>{
+          toast.classList.remove('visible');
+          toastTimer = null;
+        }, 3000);
+      }
+
+      function clearToast(){
+        if (!toast) return;
+        toast.classList.remove('visible');
+        if (toastTimer){
+          clearTimeout(toastTimer);
+          toastTimer = null;
+        }
+      }
+
+      function toggleMagic(show){
+        if (!magic) return;
+        magic.classList.toggle('active', show);
+        magic.setAttribute('aria-hidden', String(!show));
+      }
+
+      function finishProcessing(){
+        processing = false;
+        inviteInput.disabled = false;
+        inviteSubmit.disabled = false;
+      }
 
       function setOpenState(open){
         scene.classList.toggle('open', open);
         btn.setAttribute('aria-expanded', String(open));
         letter.setAttribute('aria-hidden', String(!open));
         if (label){ label.textContent = open ? '초대장 접어두기' : '초대장 열어보기'; }
+        if (open){ clearToast(); }
 
-        const focusTarget = open ? letter : btn;
+        const fallbackFocus = inviteUnlocked ? btn : inviteInput;
+        const focusTarget = open ? letter : fallbackFocus;
         const delay = open ? openDelay : closeDelay;
         if (delay === 0){
           focusTarget.focus({preventScroll:true});
@@ -310,17 +397,70 @@
         }
       }
 
+      inviteInput.addEventListener('input', ()=>clearToast());
+
+      inviteForm.addEventListener('submit', (event)=>{
+        event.preventDefault();
+        if (processing) return;
+
+        const name = inviteInput.value.trim();
+        if (!name){
+          showToast('이름을 입력해 주세요.');
+          inviteInput.focus({preventScroll:true});
+          return;
+        }
+
+        if (name.length > 3){
+          showToast('이름은 최대 3글자까지 입력 가능합니다.');
+          inviteInput.focus({preventScroll:true});
+          return;
+        }
+
+        processing = true;
+        inviteInput.disabled = true;
+        inviteSubmit.disabled = true;
+        btn.setAttribute('aria-disabled','true');
+        clearToast();
+        toggleMagic(true);
+
+        const completeCheck = ()=>{
+          toggleMagic(false);
+          finishProcessing();
+
+          if (allowedNames.has(name)){
+            inviteUnlocked = true;
+            btn.removeAttribute('aria-disabled');
+            if (!scene.classList.contains('open')){
+              setOpenState(true);
+            }
+          } else {
+            showToast('초대받지 않은 분은 여실 수 없어요.');
+            inviteInput.focus({preventScroll:true});
+          }
+        };
+
+        if (verdictDelay === 0){
+          completeCheck();
+        } else {
+          setTimeout(completeCheck, verdictDelay);
+        }
+      });
+
       btn.addEventListener('click', ()=>{
+        if (btn.getAttribute('aria-disabled') === 'true' || processing) return;
         const nextState = !scene.classList.contains('open');
         setOpenState(nextState);
       });
 
       if (closeBtn){
-        closeBtn.addEventListener('click', ()=>setOpenState(false));
+        closeBtn.addEventListener('click', ()=>{
+          if (processing) return;
+          setOpenState(false);
+        });
       }
 
       letter.addEventListener('keydown', (event)=>{
-        if (event.key === 'Escape'){
+        if (event.key === 'Escape' && !processing){
           event.preventDefault();
           setOpenState(false);
         }
