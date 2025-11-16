@@ -36,7 +36,7 @@
     .envelope-button[aria-disabled="true"]{cursor:default;pointer-events:none;opacity:0.92}
     .invite-form{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;color:#dae4f3;margin-top:4px}
     .invite-form label{font-size:14px;color:#f1f2f8;font-weight:600;letter-spacing:0.4px}
-    .invite-form .input-row{display:flex;gap:8px;align-items:center}
+    .invite-form .input-row{display:flex;gap:8px;align-items:center;position:relative}
     .invite-input{width:140px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.28);background:rgba(11,17,28,0.55);color:#f6f7ff;font-size:14px;text-align:center;letter-spacing:0.3px;transition:border 0.2s ease,box-shadow 0.2s ease}
     .invite-input::placeholder{color:rgba(255,255,255,0.45)}
     .invite-input:focus-visible{outline:none;border-color:rgba(255,209,102,0.8);box-shadow:0 0 0 3px rgba(255,209,102,0.25)}
@@ -44,7 +44,7 @@
     .invite-submit:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(0,0,0,0.4)}
     .invite-submit:focus-visible{outline:2px solid rgba(255,209,102,0.8);outline-offset:3px}
     .invite-hint{margin:0;font-size:12px;color:rgba(233,240,255,0.72)}
-    .invite-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,24,42,0.92);color:#fefefe;padding:12px 22px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.4px;box-shadow:0 16px 38px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.25s ease,transform 0.35s cubic-bezier(0.22,1,0.36,1)}
+    .invite-toast{position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(15,24,42,0.92);color:#fefefe;padding:12px 22px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.4px;box-shadow:0 16px 38px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.25s ease,transform 0.35s cubic-bezier(0.22,1,0.36,1);z-index:1001;white-space:nowrap}
     .invite-toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
     .invite-magic{position:fixed;top:50%;left:50%;z-index:1000;display:flex;gap:10px;align-items:center;justify-content:center;padding:6px 16px;border-radius:999px;background:rgba(22,34,61,0.62);box-shadow:0 12px 24px rgba(0,0,0,0.4);opacity:0;transform:translate(-50%,-50%) scale(0.9);transition:opacity 0.3s ease,transform 0.45s cubic-bezier(0.22,1,0.36,1);pointer-events:none;color:#ffe9b0}
     .invite-magic span{display:inline-block}
@@ -138,7 +138,7 @@
       .invite-form label{font-size:13px}
       .invite-input{width:120px;padding:8px 12px}
       .invite-submit{padding:8px 14px;font-size:12px}
-      .invite-toast{bottom:20px;padding:10px 18px;font-size:12px}
+      .invite-toast{padding:10px 18px;font-size:12px}
       .invite-magic{font-size:22px}
     }
   </style>
@@ -358,8 +358,13 @@
       if (magic){ magic.setAttribute('aria-hidden','true'); }
 
       function showToast(message){
-        if (!toast) return;
+        if (!toast || !inviteInput) return;
         toast.textContent = message;
+        // input 위에 토스트 배치
+        const inputRect = inviteInput.getBoundingClientRect();
+        const scrollY = window.scrollY || window.pageYOffset;
+        const toastTop = inputRect.top + scrollY - 50; // input 위 50px
+        toast.style.top = `${toastTop}px`;
         toast.classList.add('visible');
         if (toastTimer) clearTimeout(toastTimer);
         toastTimer = setTimeout(()=>{
