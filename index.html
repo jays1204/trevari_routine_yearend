@@ -46,6 +46,11 @@
     .invite-hint{margin:0;font-size:12px;color:rgba(233,240,255,0.72)}
     .invite-toast{position:fixed;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(15,24,42,0.92);color:#fefefe;padding:12px 22px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.4px;box-shadow:0 16px 38px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.25s ease,transform 0.35s cubic-bezier(0.22,1,0.36,1);z-index:1001;white-space:nowrap}
     .invite-toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+    .welcome-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(15,24,42,0.95);color:#fefefe;padding:16px 48px 16px 24px;border-radius:12px;font-size:14px;font-weight:600;letter-spacing:0.4px;box-shadow:0 16px 38px rgba(0,0,0,0.5);opacity:0;pointer-events:none;transition:opacity 0.3s ease,transform 0.4s cubic-bezier(0.22,1,0.36,1);z-index:1002;max-width:calc(100vw - 40px);box-sizing:border-box;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}
+    .welcome-toast.visible{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+    .welcome-toast-close{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,0.1);color:#fefefe;font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s ease,transform 0.2s ease;padding:0}
+    .welcome-toast-close:hover{background:rgba(255,255,255,0.2);transform:scale(1.1)}
+    .welcome-toast-close:focus-visible{outline:2px solid rgba(255,209,102,0.7);outline-offset:2px}
     .invite-magic{position:fixed;top:50%;left:50%;z-index:1000;display:flex;gap:10px;align-items:center;justify-content:center;padding:6px 16px;border-radius:999px;background:rgba(22,34,61,0.62);box-shadow:0 12px 24px rgba(0,0,0,0.4);opacity:0;transform:translate(-50%,-50%) scale(0.9);transition:opacity 0.3s ease,transform 0.45s cubic-bezier(0.22,1,0.36,1);pointer-events:none;color:#ffe9b0}
     .invite-magic span{display:inline-block}
     .invite-magic .hat{font-size:30px;animation:hatBounce 1.25s ease-in-out infinite}
@@ -142,6 +147,8 @@
       .invite-submit{padding:8px 14px;font-size:12px}
       .invite-toast{padding:10px 18px;font-size:12px}
       .invite-magic{font-size:22px}
+      .welcome-toast{top:70px;padding:14px 44px 14px 20px;font-size:13px;max-width:calc(100vw - 32px)}
+      .welcome-toast-close{width:24px;height:24px;top:6px;right:6px;font-size:16px}
     }
   </style>
 </head>
@@ -230,6 +237,10 @@
     </div>
   </div>
   <div class="invite-toast" id="inviteToast" role="alert" aria-live="assertive"></div>
+  <div class="welcome-toast" id="welcomeToast" role="alert" aria-live="polite">
+    <button class="welcome-toast-close" id="welcomeToastClose" type="button" aria-label="닫기">×</button>
+    <span id="welcomeToastMessage"></span>
+  </div>
 
   <script>
     (function(){
@@ -491,6 +502,47 @@
           setOpenState(false);
         }
       });
+    })();
+  </script>
+  <script>
+    (function(){
+      // 환영 토스트 팝업
+      const welcomeToast = document.getElementById('welcomeToast');
+      const welcomeToastMessage = document.getElementById('welcomeToastMessage');
+      const welcomeToastClose = document.getElementById('welcomeToastClose');
+      
+      if (!welcomeToast || !welcomeToastMessage || !welcomeToastClose) return;
+
+      // 날짜 확인: 12월 11일 오후 5시까지만 표시
+      function shouldShowWelcomeToast(){
+        const now = new Date();
+        const cutoffDate = new Date(now.getFullYear(), 11, 11, 17, 0, 0, 0); // 11 = December, 17 = 5pm
+        return now <= cutoffDate;
+      }
+
+      function closeWelcomeToast(){
+        welcomeToast.classList.remove('visible');
+      }
+
+      function showWelcomeToast(){
+        if (!shouldShowWelcomeToast()) return;
+        
+        // 고정 메시지 설정
+        welcomeToastMessage.textContent = '12월 26일(금) 저녁에 물랑루즈 뮤지컬 보실분 계시면 jays에게 갠톡주세요!';
+        
+        // 토스트 표시
+        welcomeToast.classList.add('visible');
+        
+        // 3초 후 자동으로 사라짐
+        setTimeout(closeWelcomeToast, 3000);
+      }
+
+      // X 버튼 클릭 시 닫기
+      welcomeToastClose.addEventListener('click', closeWelcomeToast);
+
+      // 페이지 로드 시 토스트 표시
+      // 약간의 지연을 두어 페이지가 완전히 로드된 후 표시
+      setTimeout(showWelcomeToast, 500);
     })();
   </script>
 </body>
